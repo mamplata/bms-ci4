@@ -22,7 +22,20 @@ class AuthController extends BaseController
      */
     public function register()
     {
-        if ($this->request->getMethod() === 'post') {
+        if ($this->request->getMethod() === 'POST') {
+            $rules = [
+                'name'     => 'required|min_length[3]|max_length[100]',
+                'email'    => 'required|valid_email|is_unique[users.email]',
+                'password' => 'required|min_length[8]',
+            ];
+
+            if (!$this->validate($rules)) {
+                // Validation failed, return with errors
+                return view('auth/register', [
+                    'validation' => $this->validator
+                ]);
+            }
+
             $password = $this->request->getPost('password') ?? '';
             $data = [
                 'name'     => $this->request->getPost('name'),
@@ -33,7 +46,7 @@ class AuthController extends BaseController
 
             $this->userModel->insert($data);
 
-            return redirect()->to('/login')->with('message', 'Registration successful.');
+            return redirect()->to('/')->with('message', 'Registration successful.');
         }
 
         return view('auth/register');
@@ -44,11 +57,14 @@ class AuthController extends BaseController
      */
     public function login()
     {
-        if ($this->request->getMethod() === 'post') {
+
+        if ($this->request->getMethod() === 'POST') {
+
             $email    = $this->request->getPost('email');
             $password = $this->request->getPost('password') ?? '';
 
             $user = $this->userModel->where('email', $email)->first();
+
 
             if ($user && password_verify($password, $user['password'])) {
                 session()->set([
@@ -58,9 +74,20 @@ class AuthController extends BaseController
                     'isLoggedIn' => true,
                 ]);
 
+
                 $this->logAction($user['id'], "Login");
 
-                return redirect()->to('/dashboard');
+                // Role-based redirect
+                switch ($user['role_id']) {
+                    case 1: // Resident
+                        return redirect()->to('/resident/dashboard');
+                    case 2: // Staff
+                        return redirect()->to('/staff/manage-residents');
+                    case 3: // Admin
+                        return redirect()->to('/admin/dashboard');
+                    default:
+                        return redirect()->to('/');
+                }
             }
 
             return redirect()->back()->with('error', 'Invalid email or password.');
@@ -68,6 +95,7 @@ class AuthController extends BaseController
 
         return view('auth/login');
     }
+
 
     /**
      * Logout
@@ -78,7 +106,7 @@ class AuthController extends BaseController
         $this->logAction($userId, "Logout");
 
         session()->destroy();
-        return redirect()->to('/login');
+        return redirect()->to('/');
     }
 
     /**
@@ -86,7 +114,7 @@ class AuthController extends BaseController
      */
     public function forgotPassword()
     {
-        if ($this->request->getMethod() === 'post') {
+        if ($this->request->getMethod() === 'POST') {
             $email = $this->request->getPost('email');
             $user  = $this->userModel->where('email', $email)->first();
 
@@ -119,7 +147,7 @@ class AuthController extends BaseController
      */
     public function resetPassword($token = null)
     {
-        if ($this->request->getMethod() === 'post') {
+        if ($this->request->getMethod() === 'POST') {
             $token = $this->request->getPost('token');
             $password = $this->request->getPost('password') ?? '';
 
@@ -136,7 +164,7 @@ class AuthController extends BaseController
 
                 $this->logAction($user['id'], "Password Reset");
 
-                return redirect()->to('/login')->with('message', 'Password updated successfully.');
+                return redirect()->to('/')->with('message', 'Password updated successfully.');
             }
 
             return redirect()->to('/forgot-password')->with('error', 'Invalid or expired token.');
@@ -151,12 +179,21 @@ class AuthController extends BaseController
     protected function logAction($userId, $action)
     {
         if ($userId) {
-            $this->auditModel->insert([
+            $data = [
                 'user_id'    => $userId,
                 'action'     => $action,
                 'ip_address' => $this->request->getIPAddress(),
-                'user_agent' => $this->request->getUserAgent(),
-            ]);
+                'user_agent' => $this->request->getUserAgent()->getAgentString(),
+            ];
+            $this->auditModel->insert($data);
         }
+    }
+
+    /**
+     * Unauthorized Page
+     */
+    public function unauthorized()
+    {
+        return view('errors/unauthorized');
     }
 }

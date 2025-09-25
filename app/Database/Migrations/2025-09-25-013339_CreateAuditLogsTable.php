@@ -31,7 +31,10 @@ class CreateAuditLogsTable extends Migration
                 'type' => 'TEXT',
                 'null' => true,
             ],
-            'created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
+            'created_at' => [
+                'type'    => 'DATETIME',
+                'null'    => true,
+            ],
         ]);
 
         $this->forge->addKey('id', true);
