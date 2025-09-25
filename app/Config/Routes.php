@@ -20,6 +20,8 @@ $routes->get('unauthorized', 'AuthController::unauthorized');
 
 // Resident
 $routes->get('resident/dashboard', 'ResidentController::dashboard', ['filter' => 'role:resident']);
+$routes->get('resident/profile', 'ResidentController::profile', ['filter' => 'role:resident']);
+$routes->post('resident/profile', 'ResidentController::profile', ['filter' => 'role:resident']);
 
 // Staff
 $routes->get('staff/manage-residents', 'StaffController::manageResidents', ['filter' => 'role:staff']);

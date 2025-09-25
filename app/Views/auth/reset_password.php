@@ -10,6 +10,7 @@
 <?php endif; ?>
 
 <form method="post" action="<?= base_url('reset-password') ?>">
+    <?= csrf_field() ?>
     <input type="hidden" name="token" value="<?= $token ?>">
     <div class="mb-3">
         <label class="form-label">New Password</label>
