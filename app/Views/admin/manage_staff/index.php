@@ -18,7 +18,7 @@
 
 <div class="container-fluid py-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h3 class="mb-0"><i class="bi bi-people-fill me-2"></i>Manage Staff</h3>
+        <h3 class="mb-0"><i class="bi bi-person-badge-fill me-2"></i>Manage Staff</h3>
         <a href="<?= site_url('admin/create-staff') ?>" class="btn btn-success">
             <i class="bi bi-person-plus-fill me-1"></i> Add Staff
         </a>
@@ -40,6 +40,7 @@
                     ['data' => 'name', 'title' => 'Name'],
                     ['data' => 'email', 'title' => 'Email'],
                     ['data' => 'created_at', 'title' => 'Created At', 'type' => 'date'],
+                    ['data' => 'updated_at', 'title' => 'Updated At', 'type' => 'date'],
                     ['data' => 'id', 'title' => 'Actions', 'type' => 'actions', 'actions' => [
                         ['type' => 'edit', 'url' => site_url('admin/edit-staff')],
                         ['type' => 'delete', 'url' => site_url('admin/delete-staff'), 'confirm' => 'Delete {name}?']

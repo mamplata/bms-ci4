@@ -39,7 +39,7 @@ class AdminController extends BaseController
     {
         return $this->datatableResponse(
             $this->userModel,
-            ['name', 'email', 'created_at'], // sortable columns
+            ['name', 'email', 'created_at', 'updated_at'], // sortable columns
             ['name', 'email'],               // searchable columns
             ['created_at' => 'DESC'],        // default order
             ['role_id' => '2']                 // base filter
@@ -149,15 +149,36 @@ class AdminController extends BaseController
     }
 
     /**
-     * System Logs (last 100 entries)
+     * System Logs
      */
     public function systemLogs()
     {
-        $logs = $this->auditModel->orderBy('created_at', 'DESC')->findAll(100);
-
-        return view('admin/system_logs', [
+        return view('admin/system_logs/index', [
             'title' => 'System Logs',
-            'logs'  => $logs
         ]);
+    }
+
+    public function logsData()
+    {
+        // Start with audit model builder
+        $builder = $this->auditModel
+            ->select('
+            audit_logs.id,
+            audit_logs.user_id,
+            audit_logs.action,
+            audit_logs.ip_address,
+            CONCAT(LEFT(audit_logs.user_agent, 10), "...") as user_agent,
+            users.name as user_name,
+            audit_logs.created_at
+        ')->join('users', 'users.id = audit_logs.user_id', 'left');
+
+
+        return $this->datatableResponse(
+            $builder, // pass the builder instead of model directly
+            ['user_name', 'action', 'ip_address', 'user_agent', 'created_at'], // sortable columns
+            ['users.name', 'action'], // searchable columns (note table alias)
+            ['created_at' => 'DESC']  // default order
+            // no base filters
+        );
     }
 }

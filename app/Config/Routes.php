@@ -29,7 +29,9 @@ $routes->get('staff/manage-residents', 'StaffController::manageResidents', ['fil
 // Admin
 $routes->group('admin', ['filter' => 'role:admin'], function ($routes) {
     $routes->get('dashboard', 'AdminController::dashboard');
+
     $routes->get('system-logs', 'AdminController::systemLogs');
+    $routes->post('logs-data', 'AdminController::logsData');
 
     // Staff
     $routes->get('manage-staff', 'AdminController::manageStaff');
