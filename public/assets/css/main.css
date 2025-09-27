@@ -1,0 +1,78 @@
+* {
+    box-sizing: border-box;
+}
+
+/* SIDEBAR */
+/* Desktop Sidebar */
+#sidebarDesktop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 240px;
+    background: #198754;
+    /* Bootstrap success */
+    color: #fff;
+    z-index: 1030;
+    /* Below navbar */
+}
+
+/* Push content on desktop */
+#mainContent {
+    margin-left: 0;
+}
+
+@media (min-width: 768px) {
+    #mainContent {
+        margin-left: 240px;
+    }
+}
+
+.sidebar-link.active {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 4px;
+}
+
+.brand-title {
+    font-weight: 600;
+    font-size: 1.25rem;
+}
+
+.nav-pills .nav-link.active {
+    background: rgba(255, 255, 255, 0.4);
+}
+
+.logo-img {
+    width: 65px;
+    height: auto;
+}
+
+.logo-img-sm {
+    width: 40px;
+    height: auto;
+}
+
+.brand-title {
+    font-weight: 600;
+    font-size: 1.5rem;
+    line-height: 1.2;
+}
+
+.brand-title-sm {
+    font-weight: 600;
+    font-size: 1.1rem;
+    line-height: 1.2;
+}
+
+
+/* DATA TABLES CUSTOMIZATION */
+.active > .page-link,
+.page-link.active {
+    background-color: #198754 !important;
+    border-color: #198754;
+    color: #fff !important;
+}
+
+.page-link {
+    color: #198754 !important;
+}

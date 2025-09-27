@@ -20,26 +20,31 @@
     <div class="alert alert-success"><?= session()->getFlashdata('message') ?></div>
 <?php endif; ?>
 
-<form method="post" action="<?= current_url() ?>" class="card p-3" style="max-width: 500px;">
-    <?= csrf_field() ?>
+<div class="card p-4 shadow-sm">
+    <div>
+        <form method="post" action="<?= current_url() ?>">
+            <?= csrf_field() ?>
 
-    <div class="mb-3">
-        <label for="name" class="form-label">Name</label>
-        <input type="text" class="form-control" id="name" name="name" value="<?= esc($user['name']) ?>" required>
+            <div class="mb-3">
+                <label for="name" class="form-label">Name</label>
+                <input type="text" class="form-control" id="name" name="name" value="<?= esc($user['name']) ?>" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" class="form-control" id="email" name="email" value="<?= esc($user['email']) ?>" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="password" class="form-label">Password (leave blank to keep current)</label>
+                <input type="password" class="form-control" id="password" name="password">
+            </div>
+
+            <button type="submit" class="btn btn-success">
+                <i class="bi bi-pencil-square me-1"></i> Update Profile
+            </button>
+        </form>
     </div>
+</div>
 
-    <div class="mb-3">
-        <label for="email" class="form-label">Email</label>
-        <input type="email" class="form-control" id="email" name="email" value="<?= esc($user['email']) ?>" required>
-    </div>
-
-    <div class="mb-3">
-        <label for="password" class="form-label">Password (leave blank to keep current)</label>
-        <input type="password" class="form-control" id="password" name="password">
-    </div>
-
-    <button type="submit" class="btn btn-success">
-        <i class="bi bi-pencil-square me-1"></i> Update Profile
-    </button>
-</form>
 <?= $this->endSection() ?>

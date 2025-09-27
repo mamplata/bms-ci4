@@ -27,4 +27,14 @@ $routes->post('resident/profile', 'ResidentController::profile', ['filter' => 'r
 $routes->get('staff/manage-residents', 'StaffController::manageResidents', ['filter' => 'role:staff']);
 
 // Admin
-$routes->get('admin/dashboard', 'AdminController::dashboard', ['filter' => 'role:admin']);
+$routes->group('admin', ['filter' => 'role:admin'], function ($routes) {
+    $routes->get('dashboard', 'AdminController::dashboard');
+    $routes->get('system-logs', 'AdminController::systemLogs');
+
+    // Staff
+    $routes->get('manage-staff', 'AdminController::manageStaff');
+    $routes->post('staff-data', 'AdminController::staffData');
+    $routes->match(['get', 'post'], 'create-staff', 'AdminController::createStaff');
+    $routes->match(['get', 'post'], 'edit-staff/(:num)', 'AdminController::editStaff/$1');
+    $routes->post('delete-staff/(:num)', 'AdminController::deleteStaff/$1');
+});

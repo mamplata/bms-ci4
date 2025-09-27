@@ -3,15 +3,15 @@
 namespace App\Database\Seeds;
 
 use CodeIgniter\Database\Seeder;
+use Faker\Factory;
 
 class UserSeeder extends Seeder
 {
     public function run()
     {
-
         $builder = $this->db->table('users');
 
-        // Check if admin already exists
+        // Create default admin if not exists
         $admin = $builder->where('email', 'admin@example.com')->get()->getRow();
 
         if (!$admin) {
@@ -28,5 +28,24 @@ class UserSeeder extends Seeder
         } else {
             echo "ℹ️ Admin account already exists, skipping...\n";
         }
+
+        // =========================
+        // Create 20 dummy staff users
+        // =========================
+        $faker = Factory::create();
+        $staffData = [];
+
+        for ($i = 1; $i <= 20; $i++) {
+            $staffData[] = [
+                'name'     => $faker->name(),
+                'email'    => $faker->unique()->safeEmail(),
+                'password' => password_hash('password123', PASSWORD_DEFAULT),
+                'role_id'  => 2, // Staff
+            ];
+        }
+
+        $builder->insertBatch($staffData);
+
+        echo "✅ 20 Staff accounts created (role_id=2). Default password: password123\n";
     }
 }
