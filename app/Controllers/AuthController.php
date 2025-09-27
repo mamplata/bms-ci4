@@ -3,18 +3,14 @@
 namespace App\Controllers;
 
 use App\Models\UserModel;
-use App\Models\AuditLogModel;
-use CodeIgniter\Controller;
 
 class AuthController extends BaseController
 {
     protected $userModel;
-    protected $auditModel;
 
     public function __construct()
     {
         $this->userModel = new UserModel();
-        $this->auditModel = new AuditLogModel();
     }
 
     /**
@@ -171,22 +167,6 @@ class AuthController extends BaseController
         }
 
         return view('auth/reset_password', ['token' => $token]);
-    }
-
-    /**
-     * Helper: log user actions
-     */
-    protected function logAction($userId, $action)
-    {
-        if ($userId) {
-            $data = [
-                'user_id'    => $userId,
-                'action'     => $action,
-                'ip_address' => $this->request->getIPAddress(),
-                'user_agent' => $this->request->getUserAgent()->getAgentString(),
-            ];
-            $this->auditModel->insert($data);
-        }
     }
 
     /**

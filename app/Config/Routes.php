@@ -35,6 +35,6 @@ $routes->group('admin', ['filter' => 'role:admin'], function ($routes) {
     $routes->get('manage-staff', 'AdminController::manageStaff');
     $routes->post('staff-data', 'AdminController::staffData');
     $routes->match(['get', 'post'], 'create-staff', 'AdminController::createStaff');
-    $routes->match(['get', 'post'], 'edit-staff/(:num)', 'AdminController::editStaff/$1');
-    $routes->post('delete-staff/(:num)', 'AdminController::deleteStaff/$1');
+    $routes->match(['get', 'put'], 'edit-staff/(:num)', 'AdminController::editStaff/$1');
+    $routes->delete('delete-staff/(:num)', 'AdminController::deleteStaff/$1');
 });

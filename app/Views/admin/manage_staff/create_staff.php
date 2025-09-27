@@ -21,54 +21,36 @@
 </nav>
 <hr />
 
+<!-- Flash messages -->
+<?php if (session()->getFlashdata('message')) : ?>
+    <div class="alert alert-success"><?= session()->getFlashdata('message') ?></div>
+<?php elseif (session()->getFlashdata('error')) : ?>
+    <div class="alert alert-danger"><?= session()->getFlashdata('error') ?></div>
+<?php endif; ?>
+
+<?php
+$fields = [
+    ['name' => 'name', 'label' => 'Full Name', 'type' => 'text', 'value' => old('name'), 'required' => true],
+    ['name' => 'email', 'label' => 'Email Address', 'type' => 'email', 'value' => old('email'), 'required' => true],
+    ['name' => 'password', 'label' => 'Password', 'type' => 'password', 'value' => '', 'required' => true]
+];
+
+$buttons = [
+    ['type' => 'link', 'class' => 'btn-secondary', 'icon' => 'bi-arrow-left', 'text' => 'Back', 'url' => base_url('admin/manage-staff')],
+    ['type' => 'submit', 'class' => 'btn-success', 'icon' => 'bi-check-circle', 'text' => 'Save']
+];
+?>
+
 <div class="container-fluid py-4">
     <div class="card shadow-sm border-0">
-        <div class="card-header bg-success text-white">
-            <i class="bi bi-person-plus-fill me-2"></i> Create Staff
-        </div>
+        <div class="card-header bg-success text-white"><i class="bi bi-person-plus-fill me-2"></i> Create Staff</div>
         <div class="card-body">
-            <form action="<?= site_url('admin/create-staff') ?>" method="post">
-                <?= csrf_field() ?>
-
-                <div class="mb-3">
-                    <label for="name" class="form-label">Full Name</label>
-                    <input type="text" name="name" id="name" value="<?= old('name') ?>" class="form-control <?= (isset($validation) && $validation->hasError('name')) ? 'is-invalid' : '' ?>" required>
-                    <?php if (isset($validation) && $validation->hasError('name')) : ?>
-                        <div class="invalid-feedback">
-                            <?= $validation->getError('name') ?>
-                        </div>
-                    <?php endif; ?>
-                </div>
-
-                <div class="mb-3">
-                    <label for="email" class="form-label">Email Address</label>
-                    <input type="email" name="email" id="email" value="<?= old('email') ?>" class="form-control <?= (isset($validation) && $validation->hasError('email')) ? 'is-invalid' : '' ?>" required>
-                    <?php if (isset($validation) && $validation->hasError('email')) : ?>
-                        <div class="invalid-feedback">
-                            <?= $validation->getError('email') ?>
-                        </div>
-                    <?php endif; ?>
-                </div>
-
-                <div class="mb-3">
-                    <label for="password" class="form-label">Password</label>
-                    <input type="password" name="password" id="password" class="form-control <?= (isset($validation) && $validation->hasError('password')) ? 'is-invalid' : '' ?>" required>
-                    <?php if (isset($validation) && $validation->hasError('password')) : ?>
-                        <div class="invalid-feedback">
-                            <?= $validation->getError('password') ?>
-                        </div>
-                    <?php endif; ?>
-                </div>
-
-                <div class="d-flex justify-content-between">
-                    <a href="<?= base_url('admin/manage-staff') ?>" class="btn btn-secondary">
-                        <i class="bi bi-arrow-left"></i> Back
-                    </a>
-                    <button type="submit" class="btn btn-success">
-                        <i class="bi bi-check-circle"></i> Save
-                    </button>
-                </div>
-            </form>
+            <?= view('components/base_form', [
+                'action' => site_url('admin/create-staff'),
+                'fields' => $fields,
+                'buttons' => $buttons,
+                'validation' => $validation ?? null
+            ]) ?>
         </div>
     </div>
 </div>

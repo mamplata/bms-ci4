@@ -3,17 +3,14 @@
 namespace App\Controllers;
 
 use App\Models\UserModel;
-use App\Models\AuditLogModel;
 
 class AdminController extends BaseController
 {
     protected $userModel;
-    protected $auditModel;
 
     public function __construct()
     {
         $this->userModel = new UserModel();
-        $this->auditModel = new AuditLogModel();
     }
 
     /**
@@ -40,57 +37,13 @@ class AdminController extends BaseController
 
     public function staffData()
     {
-        $request = service('request');
-
-        $draw   = $request->getPost('draw');
-        $start  = $request->getPost('start');
-        $length = $request->getPost('length');
-        $search = $request->getPost('search')['value'] ?? '';
-        $order  = $request->getPost('order'); // contains column index & direction
-        $columns = $request->getPost('columns'); // contains column data names
-
-        $builder = $this->userModel->where('role_id', 2);
-
-        // 🔍 Filtering
-        if (!empty($search)) {
-            $builder->groupStart()
-                ->like('name', $search)
-                ->orLike('email', $search)
-                ->groupEnd();
-        }
-
-        $recordsTotal    = $this->userModel->where('role_id', 2)->countAllResults(false);
-        $recordsFiltered = $builder->countAllResults(false);
-
-        // 🔀 Sorting
-        if (!empty($order)) {
-            foreach ($order as $o) {
-                $colIndex = intval($o['column']);
-                $dir      = $o['dir'] === 'asc' ? 'ASC' : 'DESC';
-                $colName  = $columns[$colIndex]['data'];
-
-                // only allow sorting on actual DB columns
-                if (in_array($colName, ['name', 'email', 'created_at'])) {
-                    $builder->orderBy($colName, $dir);
-                }
-            }
-        } else {
-            $builder->orderBy('created_at', 'DESC'); // default
-        }
-
-        // 🔢 Pagination
-        $data = $builder->findAll($length, $start);
-
-        return $this->response->setJSON([
-            'draw'            => intval($draw),
-            'recordsTotal'    => $recordsTotal,
-            'recordsFiltered' => $recordsFiltered,
-            'data'            => $data,
-            'csrf'            => [
-                'token' => csrf_token(),
-                'hash'  => csrf_hash()
-            ]
-        ]);
+        return $this->datatableResponse(
+            $this->userModel,
+            ['name', 'email', 'created_at'], // sortable columns
+            ['name', 'email'],               // searchable columns
+            ['created_at' => 'DESC'],        // default order
+            ['role_id' => '2']                 // base filter
+        );
     }
 
     /**
@@ -140,7 +93,7 @@ class AdminController extends BaseController
             return redirect()->to('/admin/manage-staff')->with('error', 'Staff not found.');
         }
 
-        if ($this->request->getMethod() === 'POST') {
+        if ($this->request->getMethod() === 'PUT') {
             $rules = [
                 'name'  => 'required|min_length[3]|max_length[100]',
                 'email' => "required|valid_email|is_unique[users.email,id,{$id}]",
@@ -168,7 +121,7 @@ class AdminController extends BaseController
 
             $this->logAction(session()->get('user_id'), "Edited staff: {$updateData['email']}");
 
-            return redirect()->to('/admin/manage-staff')->with('message', 'Staff updated successfully.');
+            return redirect()->back()->with('message', 'Staff updated successfully.');
         }
 
         return view('admin/manage_staff/edit_staff', [
@@ -206,20 +159,5 @@ class AdminController extends BaseController
             'title' => 'System Logs',
             'logs'  => $logs
         ]);
-    }
-
-    /**
-     * Helper: log admin actions
-     */
-    protected function logAction($userId, $action)
-    {
-        if ($userId) {
-            $this->auditModel->insert([
-                'user_id'    => $userId,
-                'action'     => $action,
-                'ip_address' => $this->request->getIPAddress(),
-                'user_agent' => $this->request->getUserAgent()->getAgentString(),
-            ]);
-        }
     }
 }

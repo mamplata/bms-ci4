@@ -33,100 +33,21 @@
 
     <div class="card shadow-sm border-0">
         <div class="card-body">
-            <table id="staffTable" class="table table-hover table-striped align-middle nowrap" style="width: 100%">
-                <thead class="table-success">
-                    <tr>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Role</th>
-                        <th>Created At</th>
-                        <th class="text-center">Actions</th>
-                    </tr>
-                </thead>
-            </table>
+            <?= view('components/base_table', [
+                'id' => 'staffTable',
+                'ajaxUrl' => site_url('admin/staff-data'),
+                'columns' => [
+                    ['data' => 'name', 'title' => 'Name'],
+                    ['data' => 'email', 'title' => 'Email'],
+                    ['data' => 'created_at', 'title' => 'Created At', 'type' => 'date'],
+                    ['data' => 'id', 'title' => 'Actions', 'type' => 'actions', 'actions' => [
+                        ['type' => 'edit', 'url' => site_url('admin/edit-staff')],
+                        ['type' => 'delete', 'url' => site_url('admin/delete-staff'), 'confirm' => 'Delete {name}?']
+                    ]]
+                ]
+            ]) ?>
         </div>
     </div>
 </div>
 
-<script>
-    $(document).ready(function() {
-        let isMobile = window.innerWidth < 768;
-        $('#staffTable').DataTable({
-            processing: true,
-            serverSide: true,
-            ajax: {
-                url: "<?= site_url('admin/staff-data') ?>",
-                type: "POST",
-                data: function(d) {
-                    // Always grab the latest token from meta
-                    let csrfToken = $('meta[name="csrf_token"]').attr('content');
-                    let csrfHash = $('meta[name="csrf_hash"]').attr('content');
-                    d[csrfToken] = csrfHash;
-                },
-                dataSrc: function(json) {
-                    // Update the CSRF hash after each response
-                    if (json.csrf) {
-                        $('meta[name="csrf_token"]').attr('content', json.csrf.token);
-                        $('meta[name="csrf_hash"]').attr('content', json.csrf.hash);
-                    }
-                    return json.data;
-                }
-            },
-            columns: [{
-                    data: 'name'
-                },
-                {
-                    data: 'email'
-                },
-                {
-                    data: null,
-                    render: function() {
-                        return `<span class="badge bg-primary">Staff</span>`;
-                    }
-                },
-                {
-                    data: 'created_at',
-                    render: function(data) {
-                        return new Date(data).toISOString().slice(0, 10);
-                    }
-                },
-                {
-                    data: 'id',
-                    className: "text-center",
-                    orderable: false,
-                    searchable: false,
-                    render: function(data, type, row) {
-                        return `
-                        <a href="<?= site_url('admin/edit-staff') ?>/${data}" 
-                           class="btn btn-sm btn-outline-primary me-1">
-                            <i class="bi bi-pencil-square"></i>
-                        </a>
-                        <button type="button" 
-                                class="btn btn-sm btn-outline-danger"
-                                onclick="openDeleteModal('<?= site_url('admin/delete-staff') ?>/${data}', 'Delete ${row.name}?')">
-                            <i class="bi bi-trash"></i>
-                        </button>`;
-                    }
-                }
-            ],
-            responsive: true,
-            scrollX: true,
-            scrollY: "400px",
-            scrollCollapse: true,
-            paging: true,
-            language: {
-                search: "",
-                searchPlaceholder: "🔍 Search staff...",
-            },
-            columnDefs: [{
-                targets: isMobile ? 1 : -1, // last column (actions)
-                orderable: false,
-                searchable: false,
-                responsivePriority: 1,
-            }]
-        });
-    });
-</script>
-
-<?= view('components/delete_modal') ?>
 <?= $this->endSection(); ?>

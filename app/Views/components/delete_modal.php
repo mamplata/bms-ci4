@@ -1,4 +1,4 @@
-<!-- Delete Confirmation Modal -->
+<!-- components/delete_modal.php -->
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0 shadow-sm">
@@ -10,8 +10,11 @@
                 <p id="deleteModalMessage">Are you sure you want to delete this record?</p>
             </div>
             <div class="modal-footer">
-                <form id="deleteForm" method="post" action="">
+                <form id="deleteForm" method="POST" action="">
                     <?= csrf_field() ?>
+                    <!-- Spoof DELETE method -->
+                    <input type="hidden" name="_method" value="DELETE">
+
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="submit" class="btn btn-danger">Delete</button>
                 </form>
@@ -21,11 +24,24 @@
 </div>
 
 <script>
-    // Open delete modal dynamically
+    /**
+     * Open delete modal with dynamic URL and message
+     * @param {string} url - form action URL
+     * @param {string} message - confirmation message
+     */
     function openDeleteModal(url, message = "Are you sure you want to delete this record?") {
-        document.getElementById("deleteForm").action = url;
+        const form = document.getElementById("deleteForm");
+        form.action = url;
         document.getElementById("deleteModalMessage").innerText = message;
-        let modal = new bootstrap.Modal(document.getElementById("deleteModal"));
-        modal.show();
+
+        // Update CSRF token dynamically from meta tags if present
+        let csrfToken = $('meta[name="csrf_token"]').attr('content');
+        let csrfHash = $('meta[name="csrf_hash"]').attr('content');
+        if (csrfToken && csrfHash) {
+            $(form).find('input[name="' + csrfToken + '"]').val(csrfHash);
+        }
+
+        const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+        deleteModal.show();
     }
 </script>
